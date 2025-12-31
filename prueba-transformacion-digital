@@ -1,0 +1,77 @@
+apps-script/Codigo.gs
+function enviarCorreosProspectos() {
+
+  const sheet = SpreadsheetApp
+    .openById("1yCjnEIQ6UfC4KO33OrGdUl_PfBCray4Zov9msujLO1I")
+    .getSheetByName("Hoja 1");
+
+  const data = sheet.getDataRange().getValues();
+
+  for (let i = 1; i < data.length; i++) {
+
+    const nombre = data[i][0];     // Nombre
+    const email = data[i][1];      // Correo
+    const dni = data[i][2];        // DNI
+    const whatsapp = data[i][3];   // WhatsApp
+    const negocio = data[i][4];    // Tipo de negocio
+    const ruc = data[i][5];        // RUC
+    const estado = data[i][6];     // Estado
+
+    // Evitar reenvíos
+    if (estado !== "Enviado" && email) {
+
+      // 1️⃣ Correo interno de notificación
+      MailApp.sendEmail(
+        "freddysilvatuesta@gmail.com",
+        "¡Nuevo Lead Registrado en MYPE X!",
+        `Nombre: ${nombre}
+Teléfono: ${whatsapp}
+Negocio: ${negocio}`
+      );
+
+      // 2️⃣ Correo HTML al prospecto
+      const htmlBody = `
+        <div style="font-family: Arial, sans-serif;">
+          <p>Hola <strong>${nombre}</strong>,</p>
+
+          <p>Gracias por registrarte. Hemos recibido tu información y pronto nos comunicaremos contigo.</p>
+
+          <a href="https://www.fstnegocios.com"
+             style="display:inline-block;
+                    padding:10px 15px;
+                    background-color:#1a73e8;
+                    color:white;
+                    text-decoration:none;
+                    border-radius:5px;
+                    margin-right:10px;">
+            Visitar Negocios
+          </a>
+
+          <a href="https://wa.me/51949638568"
+             style="display:inline-block;
+                    padding:10px 15px;
+                    background-color:#25D366;
+                    color:white;
+                    text-decoration:none;
+                    border-radius:5px;">
+            Chatear por WhatsApp
+          </a>
+
+          <p style="margin-top:20px;">
+            Saludos,<br>
+            Equipo MYPE X
+          </p>
+        </div>
+      `;
+
+      MailApp.sendEmail({
+        to: email,
+        subject: "Gracias por tu interés",
+        htmlBody: htmlBody
+      });
+
+      // 3️⃣ Marcar estado como Enviado
+      sheet.getRange(i + 1, 7).setValue("Enviado");
+    }
+  }
+}
